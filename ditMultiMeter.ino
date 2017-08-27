@@ -9,7 +9,16 @@ char msgs[5][15] = {"Right Key OK ",
 					"Down Key OK  ", 
 					"Left Key OK  ", 
 					"Select Key OK" };
-int adc_key_val[5] ={30, 150, 360, 535, 760 };
+#define __Due__
+#if defined(__Due__)
+    static float adcRef = 3.3;
+    int adc_key_val[5] ={100, 300, 600, 900, 1023};
+  
+#else
+    static float adcRef = 5.0;
+    int adc_key_val[5] ={30, 150, 360, 535, 760 ;  
+#endif
+
 int NUM_KEYS = 5;
 int adc_key_in;
 int key=-1;			//debounce
@@ -54,7 +63,7 @@ void loop()
 {		
     adc_key_in = analogRead(KEY_PIN);   // read the value from the sensor
     key = get_key(adc_key_in); 			// convert into key press
-    Serial.print(oldkey); Serial.print(":"); Serial.println(key);   
+    Serial.print(adc_key_in); Serial.print(":"); Serial.println(key);   
        
     if (key != oldkey) 					// if keypress is detected
     {
@@ -74,7 +83,7 @@ void loop()
         pinMode(A2, INPUT);
         //Conversion formula
         int analog_value = analogRead(A2);
-        temp = (analog_value * 5.0) / 1024.0; 
+        temp = (analog_value * adcRef) / 1024.0; 
         input_voltage = temp / (r2/(r1+r2));
         
         if (input_res < 0.1) input_voltage=0.0;
@@ -90,8 +99,8 @@ void loop()
         pinMode(A2, INPUT);
         //Conversion formula
         int analog_value = analogRead(A2);
-        temp = (analog_value * 5.0) / 1024.0; 
-        input_res = ((5 - temp) * r3) / temp;
+        temp = (analog_value * adcRef) / 1024.0; 
+        input_res = ((adcRef - temp) * r3) / temp;
         //R1 = (Vref - Vout) * R2 /Vout
         if (input_res < 0.1) input_res=0.0;
          
